@@ -2,6 +2,8 @@ import type { NextPage } from 'next'
 
 import Head from 'next/head'
 
+import { Grid } from '~/components/Grid'
+
 const Home: NextPage = () => {
     return (
         <>
@@ -12,6 +14,7 @@ const Home: NextPage = () => {
             </Head>
             <main className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]'>
                 <h1 className='text-white'>Tic-tac-toe</h1>
+                <Grid width={3} height={3} />
             </main>
         </>
     )
