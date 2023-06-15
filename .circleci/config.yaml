@@ -1,0 +1,15 @@
+version: 2.1
+
+orbs:
+  cypress: cypress-io/cypress@3.1.2
+
+workflows:
+  use-my-orb:
+    jobs:
+      - cypress/run:
+          package-manager: yarn
+          post-install: yarn deploy-gh
+          cypress-cache-key: custom-cypress-cache-v1-{{ arch }}-{{ checksum "package.json" }}
+          cypress-cache-path: ~/.cache/Cypress
+          cypress-command: yarn cypress run
+          node-cache-version: v2
