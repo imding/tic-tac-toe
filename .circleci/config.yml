@@ -3,17 +3,52 @@ version: 2.1
 orbs:
   cypress: cypress-io/cypress@3.1.2
 
+jobs:
+  Unit-tests:
+    docker:
+      - image: cimg/node:16.17.1
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore packages cache
+          key: pnpm-{{ checksum "pnpm-lock.yaml" }}-{{ arch }}
+      - restore_cache:
+          name: Restore node cache
+          key: node-{{ checksum "package.json" }}-{{ arch }}
+      - run:
+          name: Install pnpm package manager
+          command: |
+            sudo npm install --global pnpm
+      - run: pnpm install --frozen-lockfile
+      - save_cache:
+          name: Save packages cache
+          key: pnpm-{{ checksum "pnpm-lock.yaml" }}-{{ arch }}
+          paths:
+            - ~/.cache/pnpm
+      - save_cache:
+          name: Save node cache
+          key: node-{{ checksum "pnpm-lock.yaml" }}-{{ arch }}
+          paths:
+            - node_modules
+      - run:
+          name: Unit & component tests
+          command: pnpm vitest run --dir spec
+
 workflows:
-  use-my-orb:
+  Tests:
     jobs:
+      - Unit-tests
+      # make cypress orb work with pnpm-lock.yaml to speed up e2e tests
       - cypress/run:
+          requires:
+              - Unit-tests
+          name: End-to-end tests
           package-manager: yarn
-          cypress-cache-key: custom-cypress-cache-v1-{{ arch }}-{{ checksum "package.json" }}
-          cypress-cache-path: ~/.cache/custom-dir/Cypress
+          install-command: yarn
           cypress-command: |
             if [ $CIRCLE_BRANCH == "main" ]
             then
-                yarn cypress
+                yarn cypress:ci
             fi
                 echo 'skipped e2e tests'
           node-cache-version: v2
