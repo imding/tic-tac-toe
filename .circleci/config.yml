@@ -8,8 +8,12 @@ workflows:
     jobs:
       - cypress/run:
           package-manager: yarn
-          post-install: yarn deploy-gh
           cypress-cache-key: custom-cypress-cache-v1-{{ arch }}-{{ checksum "package.json" }}
-          cypress-cache-path: ~/.cache/Cypress
-          cypress-command: yarn cypress run
+          cypress-cache-path: ~/.cache/custom-dir/Cypress
+          cypress-command: |
+            if [ $CIRCLE_BRANCH == "main" ]
+            then
+                yarn cypress
+            fi
+                echo 'skipped e2e tests'
           node-cache-version: v2

@@ -7,8 +7,8 @@
         "dev": "next dev",
         "lint": "next lint",
         "start": "next start",
-        "cypress": "cypress open",
-        "deploy-gh": "next build && touch out/.nojekyll && git add out/ && git commit -m \"Deploy\" && git subtree push --prefix out origin gh-pages"
+        "cypress": "cypress run",
+        "deploy-gh": "next build && touch out/.nojekyll && git add -f out/ && git commit -m \"Deploy\" && git subtree push --prefix out origin gh-pages"
     },
     "dependencies": {
         "@t3-oss/env-nextjs": "^0.3.1",
