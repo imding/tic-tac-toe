@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   cypress: cypress-io/cypress@3.1.2
+  codecov: codecov/codecov@3.2.4
 
 jobs:
   Unit-tests:
@@ -32,7 +33,10 @@ jobs:
             - node_modules
       - run:
           name: Unit & component tests
-          command: pnpm vitest run --dir spec
+          command: pnpm vitest run --coverage --dir vitest
+      - store_artifacts:
+          path: vitest/coverage
+      - codecov/upload
 
 workflows:
   Tests:
@@ -45,6 +49,7 @@ workflows:
           name: End-to-end tests
           package-manager: yarn
           install-command: yarn
+          post-install: yarn build
           cypress-command: |
             if [ $CIRCLE_BRANCH == "main" ]
             then
@@ -52,3 +57,7 @@ workflows:
             fi
                 echo 'skipped e2e tests'
           node-cache-version: v2
+          post-steps:
+            - store_artifacts:
+                path: coverage
+            - codecov/upload

@@ -12,5 +12,5 @@ export const Grid: FC<GridProps> = ({ width, height }) => {
         cells.push(<div key={i} />)
     }
 
-    return <div>{...cells}</div>
+    return <div>{cells}</div>
 }

@@ -8,7 +8,8 @@
         "lint": "next lint",
         "start": "next start",
         "cypress": "cypress open",
-        "cypress:ci": "cypress run",
+        "cypress:headless": "cypress run",
+        "cypress:ci": "start-server-and-test 3000/tic-tac-toe cypress:headless",
         "deploy-gh": "next build && touch out/.nojekyll && git add -f out/ && git commit -m \"Deploy\" && git subtree push --prefix out origin gh-pages"
     },
     "dependencies": {
@@ -19,7 +20,9 @@
         "zod": "^3.21.4"
     },
     "devDependencies": {
+        "@cypress/code-coverage": "^3.10.7",
         "@testing-library/react": "^14.0.0",
+        "@types/cypress__code-coverage": "^3.10.0",
         "@types/eslint": "^8.37.0",
         "@types/node": "^18.16.0",
         "@types/prettier": "^2.7.2",
@@ -28,7 +31,9 @@
         "@typescript-eslint/eslint-plugin": "^5.59.6",
         "@typescript-eslint/parser": "^5.59.6",
         "@vitejs/plugin-react": "^4.0.0",
+        "@vitest/coverage-v8": "^0.32.1",
         "autoprefixer": "^10.4.14",
+        "babel-plugin-istanbul": "^6.1.1",
         "cypress": "^12.14.0",
         "eslint": "^8.40.0",
         "eslint-config-next": "^13.4.2",
@@ -36,6 +41,7 @@
         "postcss": "^8.4.21",
         "prettier": "^2.8.8",
         "prettier-plugin-tailwindcss": "^0.2.8",
+        "start-server-and-test": "^2.0.0",
         "tailwindcss": "^3.3.0",
         "typescript": "^5.0.4",
         "vitest": "^0.32.0"

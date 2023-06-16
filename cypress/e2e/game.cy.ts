@@ -1,6 +1,6 @@
 describe('tic-tac-toe game', () => {
     beforeEach(() => {
-        cy.visit('https://imding.github.io/tic-tac-toe')
+        cy.visit('/')
     })
 
     it('passes', () => {
