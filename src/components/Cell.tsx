@@ -1,29 +1,49 @@
+import type { Game } from '~/types/Game'
 import type { Player } from '~/types/Player'
 import type { ComponentProps, FC } from 'react'
 
-import { useState } from 'react'
+import { Q } from '~/constants/queryKeys'
+import { get, set } from 'idb-keyval'
+import { useEffect, useRef } from 'react'
 
 export type CellProps = {
     row: number
     col: number
-    getActivePlayer: () => Player
-    toggleActivePlayer: () => void
+    initiallyOccupiedBy?: Player
+    onMakeMove: (row: number, col: number) => Player
 }
 
-export const Cell: FC<CellProps> = ({ row, col, getActivePlayer, toggleActivePlayer }) => {
-    console.log('rendered cell', row, col)
-    const [activePlayer, setActivePlayer] = useState<Player>()
+export const Cell: FC<CellProps> = ({ row, col, initiallyOccupiedBy, onMakeMove }) => {
+    const symbolRef = useRef<HTMLParagraphElement>(null)
     const containerProps: ComponentProps<'div'> = {
-        className: `w-12 h-12 border cursor-pointer ${activePlayer ? 'pointer-events-none' : ''}`,
+        className: 'grid place-items-center w-12 h-12 border cursor-pointer',
         onClick: () => {
-            setActivePlayer(getActivePlayer())
-            toggleActivePlayer()
+            const _activePlayer = onMakeMove(row, col)
+
+            if (symbolRef.current) {
+                symbolRef.current.innerText = _activePlayer.symbol
+            }
+
+            void get<Game>(Q.UNFINISHED_GAME).then(unfinishedGame => {
+                if (!unfinishedGame) {
+                    return console.warn('Failed to fetch unfinished game.')
+                }
+
+                unfinishedGame.moves.push({ row, col, byPlayerIdx: _activePlayer.index })
+                void set(Q.UNFINISHED_GAME, unfinishedGame)
+            })
         }
     }
 
+    useEffect(() => {
+        if (symbolRef.current && initiallyOccupiedBy?.symbol) {
+            symbolRef.current.innerText = initiallyOccupiedBy.symbol
+        }
+    }, [initiallyOccupiedBy?.symbol])
+
     return (
         <div {...containerProps}>
-            {activePlayer?.symbol}
+            <p ref={symbolRef} />
         </div>
     )
 }

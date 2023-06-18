@@ -1,29 +1,18 @@
-import type { Game } from '~/types/Game'
 import type { Player } from '~/types/Player'
 import type { ComponentProps, FC } from 'react'
 
+import { set } from 'idb-keyval'
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { get, set } from 'idb-keyval'
-import { useMutation, useQuery } from '@tanstack/react-query'
 
 import { Q } from '~/constants/queryKeys'
+import { useUnfinishedGame } from '~/hooks/useUnfinishedGame'
 import { aiName, aiSymbol, playerSymbols } from '~/constants/playerInfo'
 
 export const GameInitialisation: FC = () => {
     const router = useRouter()
-    const { data: unfinishedGame, error, isLoading } = useQuery([Q.UNFINISHED_GAME], async () => {
-        const result = await get<Game>(Q.UNFINISHED_GAME).catch((reason: string) => {
-            console.warn('Failed to fetch unfinished game from IDB.')
-            throw new Error(reason)
-        })
-
-        if (!result) {
-            return null
-        }
-
-        return result
-    })
+    const { game, error, isLoading } = useUnfinishedGame()
 
     if (isLoading) {
         return <p>Loading...</p>
@@ -33,7 +22,7 @@ export const GameInitialisation: FC = () => {
         console.warn(JSON.stringify(error))
     }
 
-    if (unfinishedGame) {
+    if (game) {
         void router.push('play')
         return null
     }
@@ -42,16 +31,10 @@ export const GameInitialisation: FC = () => {
 }
 
 const NewGame: FC = () => {
-    const [isPvp, setIsPvp] = useState(false)
+    const [isPvp, setIsPvp] = useState(true)
     const p1InfoRef = useRef<Player>()
     const p2InfoRef = useRef<Player>()
-    const router = useRouter()
-    const { mutate: addUnfinishedGame } = useMutation(
-        async () => set(Q.UNFINISHED_GAME, { moves: [] }),
-        {
-            onSuccess: () => void router.push('play')
-        }
-    )
+    const queryClient = useQueryClient()
     const startGame = () => {
         if (!p1InfoRef.current || !p2InfoRef.current) {
             return alert('Please give each player a name and a symbol.')
@@ -65,15 +48,19 @@ const NewGame: FC = () => {
             return alert('Players should pick a unique symbol.')
         }
 
-        addUnfinishedGame()
+        const newGame = { moves: [], players: [p1InfoRef.current, p2InfoRef.current] }
+
+        void set(Q.UNFINISHED_GAME, newGame).then(() => {
+            queryClient.setQueryData([Q.UNFINISHED_GAME], newGame)
+        })
     }
 
     return (
         <div className='grid grid-cols-2 gap-2'>
-            <div className='col-span-2 text-center'>
+            {/* <div className='col-span-2 text-center'>
                 <button onClick={() => setIsPvp(false)} className={`px-2 ${isPvp ? 'opacity-50' : ''}`}>Single player</button>
                 <button onClick={() => setIsPvp(true)} className={`px-2 ${isPvp ? '' : 'opacity-50'}`}>Multi-player</button>
-            </div>
+            </div> */}
             <PlayerInfoEditor label='Player 1' ref={p1InfoRef} />
             <PlayerInfoEditor label='Player 2' isAi={!isPvp} ref={p2InfoRef} />
             <button onClick={startGame} className='col-span-2'>Play</button>
@@ -82,7 +69,7 @@ const NewGame: FC = () => {
 }
 
 type PlayerInfoEditorProps = {
-    label: string
+    label: 'Player 1' | 'Player 2'
     isAi?: boolean
 }
 
@@ -95,13 +82,14 @@ const PlayerInfoEditor = forwardRef<Player | undefined, PlayerInfoEditorProps>(
             if (name && selectedSymbol) {
                 return {
                     name: isAi ? aiName : name,
-                    symbol: isAi ? aiSymbol : selectedSymbol
+                    symbol: isAi ? aiSymbol : selectedSymbol,
+                    index: label === 'Player 1' ? 0 : 1
                 }
             }
-        }, [isAi, name, selectedSymbol])
+        }, [isAi, label, name, selectedSymbol])
 
         return (
-            <div>
+            <div className='border p-2'>
                 <p>{label}</p>
                 <div>
                     <span>Name: </span>

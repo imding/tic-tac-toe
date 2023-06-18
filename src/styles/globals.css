@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body, #__next {
+    height: 100%
+}
+
 h1, p, button, span {
     color: white
 }
