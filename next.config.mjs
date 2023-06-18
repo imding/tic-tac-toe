@@ -8,7 +8,7 @@ import { env } from './src/env.mjs'
 
 /** @type {import("next").NextConfig} */
 const config = {
-    output: 'export',// env.NODE_ENV === 'production' ? undefined : 'export',
+    output: env.NODE_ENV === 'production' ? undefined : 'export',
     basePath: env.NODE_ENV === 'production' ? '/tic-tac-toe' : '',
     reactStrictMode: true
 
