@@ -76,4 +76,13 @@ describe('Game logic', () => {
             { row: 2, col: 1, byPlayerIdx: 0 }
         ], dimension)).toBe(false)
     })
+
+    test('Can check winner -\nx _ _\n_ x _\nx _ _', () => {
+        console.log('')
+        expect(checkWinner([
+            { row: 0, col: 0, byPlayerIdx: 0 },
+            { row: 1, col: 1, byPlayerIdx: 0 },
+            { row: 2, col: 0, byPlayerIdx: 0 }
+        ], dimension)).toBe(false)
+    })
 })

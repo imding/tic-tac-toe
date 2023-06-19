@@ -18,7 +18,9 @@ export function checkWinner(moves: Move[], dimension: Array<number>): boolean {
     const rowValues = Object.values(result.row)
     const colValues = Object.values(result.col)
     const hasStraightLine = Math.max(...rowValues, ...colValues) === dimension.length
-    const hasDiagonalLine = dimension.every((_, idx) => moves.find(({ row, col }) => row === idx && (col === idx || col === dimension.length - idx - 1)))
+    const hasDiagonalLine =
+        dimension.every((_, idx) => moves.find(({ row, col }) => row === idx && col === idx)) ||
+        dimension.every((_, idx) => moves.find(({ row, col }) => row === idx && col === dimension.length - idx - 1))
 
     return hasStraightLine || hasDiagonalLine
 }
