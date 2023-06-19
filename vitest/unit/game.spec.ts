@@ -68,7 +68,7 @@ describe('Game logic', () => {
         ], dimension)).toBe(false)
     })
 
-    test.only('Can check winner -\nx _ _\n_ _ x\n_ x _', () => {
+    test('Can check winner -\nx _ _\n_ _ x\n_ x _', () => {
         console.log('')
         expect(checkWinner([
             { row: 0, col: 0, byPlayerIdx: 0 },
