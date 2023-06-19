@@ -3,42 +3,20 @@ import type { FC } from 'react'
 import type { Player } from '~/types/Player'
 import type { Game, Move } from '~/types/Game'
 
+import { useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/router'
 import { del, get, set } from 'idb-keyval'
 import { useEffect, useRef } from 'react'
 
 import { Cell } from '~/components/Cell'
 import { Q } from '~/constants/queryKeys'
-import { useQueryClient } from '@tanstack/react-query'
+import { checkWinner, getActivePlayer } from '~/utils/game'
 
 type BoardProps = {
     game: Game
 }
 
-const dimension = new Array(3).fill(0)
-
-function getActivePlayer(moves: Array<Move>, players: Game['players']) {
-    const lastMove = moves.findLast(Boolean)
-    const lastMoveByPlayer = lastMove && players[lastMove.byPlayerIdx]
-    return players[lastMoveByPlayer ? lastMoveByPlayer.index === 0 ? 1 : 0 : 0]
-}
-
-function checkWinner(moves: Move[]): boolean {
-    const result = moves.reduce((acc, { row, col }) => {
-        const _row = acc.row[row]
-        const _col = acc.col[col]
-        acc.row[row] = _row ? _row + 1 : 1
-        acc.col[col] = _col ? _col + 1 : 1
-        return acc
-    }, { row: {}, col: {} } as { row: { [k: number]: number }, col: { [k: number]: number } })
-
-    const rowValues = Object.values(result.row)
-    const colValues = Object.values(result.col)
-    const hasStraightLine = Math.max(...rowValues, ...colValues) === dimension.length
-    const hasDiagonalLine = new Set(Object.keys(result.row)).size === dimension.length && new Set(Object.keys(result.col)).size === dimension.length
-
-    return hasStraightLine || hasDiagonalLine
-}
+const dimension = new Array<number>(3).fill(0)
 
 export const Board: FC<BoardProps> = ({ game }) => {
     const router = useRouter()
@@ -69,7 +47,7 @@ export const Board: FC<BoardProps> = ({ game }) => {
                 const playerMoves = moves.current.filter(({ byPlayerIdx }) => byPlayerIdx === move.byPlayerIdx)
                 const player = players.current[move.byPlayerIdx]
 
-                if (checkWinner(playerMoves)) {
+                if (checkWinner(playerMoves, dimension)) {
                     if (playAgainRef.current) {
                         playAgainRef.current.hidden = false
                     }
