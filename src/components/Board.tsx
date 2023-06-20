@@ -4,14 +4,13 @@ import type { Player } from '~/types/Player'
 import type { Game, Move } from '~/types/Game'
 
 import { useQueryClient } from '@tanstack/react-query'
-import { useRouter } from 'next/router'
 import { del, get, set } from 'idb-keyval'
 import { useEffect, useRef } from 'react'
 
 import { Cell } from '~/components/Cell'
 import { Q } from '~/constants/queryKeys'
-import { checkWinner, getActivePlayer } from '~/utils/game'
 import { TEST_ID } from '~/constants/testIds'
+import { checkWinner, getActivePlayer } from '~/utils/game'
 
 type BoardProps = {
     dimension:Array<number>
