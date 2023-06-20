@@ -33,7 +33,7 @@ const PlayPage: NextPage = () => {
             </Head>
             <main className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]'>
                 <h1 className='text-white'>Tic-tac-toe</h1>
-                <Board game={game} />
+                <Board dimension={new Array<number>(3).fill(0)} game={game} onPlayAgain={() => void router.push('/')} />
             </main>
         </>
     )

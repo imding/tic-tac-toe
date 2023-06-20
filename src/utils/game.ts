@@ -1,7 +1,7 @@
 import type { Game, Move } from '~/types/Game'
 
 export function getActivePlayer(moves: Array<Move>, players: Game['players']) {
-    const lastMove = moves.findLast(Boolean)
+    const lastMove = moves[Math.max(0, moves.length - 1)]
     const lastMoveByPlayer = lastMove && players[lastMove.byPlayerIdx]
     return players[lastMoveByPlayer ? lastMoveByPlayer.index === 0 ? 1 : 0 : 0]
 }
@@ -18,9 +18,14 @@ export function checkWinner(moves: Move[], dimension: Array<number>): boolean {
     const rowValues = Object.values(result.row)
     const colValues = Object.values(result.col)
     const hasStraightLine = Math.max(...rowValues, ...colValues) === dimension.length
+
+    if (hasStraightLine) {
+        return true
+    }
+
     const hasDiagonalLine =
         dimension.every((_, idx) => moves.find(({ row, col }) => row === idx && col === idx)) ||
         dimension.every((_, idx) => moves.find(({ row, col }) => row === idx && col === dimension.length - idx - 1))
 
-    return hasStraightLine || hasDiagonalLine
+    return hasDiagonalLine
 }

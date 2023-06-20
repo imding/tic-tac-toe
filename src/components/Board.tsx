@@ -11,15 +11,15 @@ import { useEffect, useRef } from 'react'
 import { Cell } from '~/components/Cell'
 import { Q } from '~/constants/queryKeys'
 import { checkWinner, getActivePlayer } from '~/utils/game'
+import { TEST_ID } from '~/constants/testIds'
 
 type BoardProps = {
+    dimension:Array<number>
     game: Game
+    onPlayAgain: () => void
 }
 
-const dimension = new Array<number>(3).fill(0)
-
-export const Board: FC<BoardProps> = ({ game }) => {
-    const router = useRouter()
+export const Board: FC<BoardProps> = ({ dimension, game, onPlayAgain }) => {
     const moves = useRef<Array<Move>>(game.moves)
     const players = useRef<[Player, Player]>(game.players)
     const announcerRef = useRef<HTMLHeadingElement>(null)
@@ -78,12 +78,12 @@ export const Board: FC<BoardProps> = ({ game }) => {
     }, [])
 
     return (
-        <div className='h-full grid place-items-center'>
+        <div className='h-full grid place-items-center' data-testid={TEST_ID.BOARD_CONTAINER}>
             <h1 ref={announcerRef} />
-            <div className='grid grid-cols-[repeat(3,min-content)]' ref={boardRef}>
+            <div className='grid grid-cols-[repeat(3,min-content)]' ref={boardRef} data-testid={TEST_ID.CELL_CONTAINER}>
                 {cells}
             </div>
-            <button onClick={() => void router.push('/')} hidden ref={playAgainRef}>Play Again</button>
+            <button onClick={onPlayAgain} hidden ref={playAgainRef}>Play Again</button>
         </div>
     )
 }
